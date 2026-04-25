@@ -1,0 +1,54 @@
+# OSX
+.DS_Store
+
+# build outputs
+build/
+
+# Xcode (iOS)
+xcuserdata
+DerivedData
+*.xcuserstate
+ios/.xcode.env.local
+
+# Android
+.idea
+.gradle
+local.properties
+*.iml
+.cxx/
+*.keystore
+!debug.keystore
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+*.log
+
+# env
+.env
+.env.*
+
+# React Native
+.metro-health-check*
+*.jsbundle
+
+# CocoaPods
+/ios/Pods/
+/vendor/bundle/
+
+# fastlane
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots
+**/fastlane/test_output
+
+# testing
+/coverage
+
+# editor
+.vscode/
+*.swp
+
+# typescript
+*.tsbuildinfo
