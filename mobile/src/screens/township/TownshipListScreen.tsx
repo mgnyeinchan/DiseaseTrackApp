@@ -11,30 +11,53 @@ import {
   Button,
   FAB,
   ActivityIndicator,
-  TextInput
+  TextInput,
+  Menu
 } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { getProjects, deleteProject } from '../../services/projectApi';
+import {
+  getTownships,
+  deleteTownship,
+  getDivisions
+} from '../../services/townshipApi';
+
 import { AuthContext } from '../../context/AuthContext';
 
-export default function ProjectListScreen({ navigation }: any) {
+type Township = {
+  tsp_id: number;
+  tsp_code: string;
+  tsp_name: string;
+  div_name: string;
+  tps_div_id: number;
+};
+
+type Division = {
+  div_id: number;
+  div_name: string;
+};
+
+export default function TownshipListScreen({ navigation }: any) {
 
   const { logout } = useContext(AuthContext);
 
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<Township[]>([]);
   const [page, setPage] = useState(1);
 
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-
-  const [initialLoading, setInitialLoading] = useState(true); // 🔥 fix
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const [hasMore, setHasMore] = useState(true);
   const [total, setTotal] = useState(0);
 
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // 🔥 filter (FIXED TYPE)
+  const [divisionId, setDivisionId] = useState<number | undefined>(undefined);
+  const [divisions, setDivisions] = useState<Division[]>([]);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   const [deletingIds, setDeletingIds] = useState<number[]>([]);
 
@@ -49,28 +72,51 @@ export default function ProjectListScreen({ navigation }: any) {
     return () => clearTimeout(timer);
   }, [search]);
 
+  // 🔥 load divisions
+  useEffect(() => {
+    getDivisions()
+      .then(res => {
+        if (Array.isArray(res.data)) {
+          setDivisions(res.data);
+        } else {
+          setDivisions([]); // fallback
+        }
+      })
+      .catch(() => {
+        setDivisions([]);
+        Alert.alert('Error', 'Failed to load divisions');
+      });
+  }, []);
+
   // 🔥 load data
   const loadData = async (pageNumber = 1, isRefresh = false) => {
     try {
       if (isRefresh) setRefreshing(true);
       else setLoading(true);
 
-      const res = await getProjects(pageNumber, LIMIT, debouncedSearch);
+      const res = await getTownships(
+        pageNumber,
+        LIMIT,
+        debouncedSearch,
+        divisionId
+      );
+
+      const list = res.data.data;
 
       if (pageNumber === 1) {
-        setData(res.data.data);
+        setData(list);
       } else {
         setData(prev => {
-          const map = new Map();
-          [...prev, ...res.data.data].forEach(item => {
-            map.set(item.project_id, item);
+          const map = new Map<number, Township>();
+          [...prev, ...list].forEach(item => {
+            map.set(item.tsp_id, item);
           });
           return Array.from(map.values());
         });
       }
 
       setTotal(res.data.meta.total);
-      setHasMore(res.data.data.length === LIMIT);
+      setHasMore(list.length === LIMIT);
       setPage(pageNumber);
 
     } catch (err: any) {
@@ -85,16 +131,16 @@ export default function ProjectListScreen({ navigation }: any) {
     } finally {
       setLoading(false);
       setRefreshing(false);
-      setInitialLoading(false); // 🔥 important fix
+      setInitialLoading(false);
     }
   };
 
-  // 🔥 reload on focus
+  // 🔥 reload when search or filter change
   useFocusEffect(
     useCallback(() => {
-      setInitialLoading(true); // 🔥 reset when re-enter screen
+      setInitialLoading(true);
       loadData(1, true);
-    }, [debouncedSearch])
+    }, [debouncedSearch, divisionId])
   );
 
   // 🔥 infinite scroll
@@ -107,7 +153,7 @@ export default function ProjectListScreen({ navigation }: any) {
   // 🔥 optimistic delete
   const handleDelete = (id: number) => {
 
-    Alert.alert('Confirm', 'Delete this project?', [
+    Alert.alert('Confirm', 'Delete this township?', [
       { text: 'Cancel' },
       {
         text: 'Delete',
@@ -120,10 +166,10 @@ export default function ProjectListScreen({ navigation }: any) {
           const oldData = [...data];
 
           // remove instantly
-          setData(prev => prev.filter(item => item.project_id !== id));
+          setData(prev => prev.filter(x => x.tsp_id !== id));
 
           try {
-            await deleteProject(id);
+            await deleteTownship(id);
           } catch (err: any) {
             setData(oldData); // rollback
             Alert.alert('Error', err.message);
@@ -159,26 +205,66 @@ export default function ProjectListScreen({ navigation }: any) {
     </Card>
   );
 
+  const selectedDivision = Array.isArray(divisions)
+  ? divisions.find(d => d.div_id === divisionId)
+  : undefined;
+
   return (
     <View style={{ flex: 1 }}>
 
       {/* 🔍 Search */}
       <TextInput
-        placeholder="Search project..."
+        placeholder="Search township..."
         value={search}
         onChangeText={setSearch}
         style={{ margin: 10 }}
       />
 
+      {/* 🔽 Division Filter */}
+      <Menu
+        visible={menuVisible}
+        onDismiss={() => setMenuVisible(false)}
+        anchor={
+          <TextInput
+            label="Filter Division"
+            value={selectedDivision?.div_name || ''}
+            mode="outlined"
+            editable={false}
+            right={<TextInput.Icon icon="menu-down" />}
+            onPressIn={() => setMenuVisible(true)}
+            style={{ marginHorizontal: 10, marginBottom: 5 }}
+          />
+        }
+      >
+        <Menu.Item
+          title="All"
+          onPress={() => {
+            setDivisionId(undefined);
+            setMenuVisible(false);
+          }}
+        />
+
+        {divisions.map(d => (
+          <Menu.Item
+            key={d.div_id}
+            title={d.div_name}
+            onPress={() => {
+              setDivisionId(d.div_id);
+              setMenuVisible(false);
+            }}
+          />
+        ))}
+      </Menu>
+
       {/* 📊 Count */}
       <Text style={{ marginLeft: 10 }}>
-        Showing {data.length} of {total} projects
+        Showing {data.length} of {total}
       </Text>
 
       {/* 📋 List */}
       <FlatList
         data={data}
-        keyExtractor={(item) => item.project_id.toString()}
+        keyExtractor={(item) => item.tsp_id.toString()}
 
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
@@ -217,23 +303,23 @@ export default function ProjectListScreen({ navigation }: any) {
         renderItem={({ item }) => (
           <Card style={{ margin: 10 }}>
             <Card.Title
-              title={item.project_name}
-              subtitle={item.project_code}
+              title={item.tsp_name}
+              subtitle={`${item.tsp_code} (${item.div_name})`}
             />
 
             <Card.Actions>
               <Button
                 onPress={() =>
-                  navigation.navigate('ProjectForm', { project: item })
+                  navigation.navigate('TownshipForm', { township: item })
                 }
               >
                 Edit
               </Button>
 
               <Button
-                loading={deletingIds.includes(item.project_id)}
-                disabled={deletingIds.includes(item.project_id)}
-                onPress={() => handleDelete(item.project_id)}
+                loading={deletingIds.includes(item.tsp_id)}
+                disabled={deletingIds.includes(item.tsp_id)}
+                onPress={() => handleDelete(item.tsp_id)}
               >
                 Delete
               </Button>
@@ -246,7 +332,7 @@ export default function ProjectListScreen({ navigation }: any) {
       <FAB
         icon="plus"
         style={{ position: 'absolute', right: 20, bottom: 20 }}
-        onPress={() => navigation.navigate('ProjectForm')}
+        onPress={() => navigation.navigate('TownshipForm')}
       />
 
     </View>

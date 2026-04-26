@@ -13,6 +13,9 @@ import TownshipSetupScreen from '../screens/setup/TownshipSetupScreen';
 import VillageSetupScreen from '../screens/setup/VillageSetupScreen';
 import ClinicSetupScreen from '../screens/setup/ClinicSetupScreen';
 import ProjectNavigator from './ProjectNavigator';
+import OrgNavigator from './OrgNavigator';
+import DivisionNavigator from './DivisionNavigator';
+import TownshipNavigator from './TownshipNavigator';
 
 const Stack = createStackNavigator();
 
@@ -31,9 +34,9 @@ export default function AppNavigator() {
       <Stack.Screen name="Dashboard" component={DashboardScreen} />
 
       <Stack.Screen name="Projects" component={ProjectNavigator} />
-      <Stack.Screen name="Org" component={OrgSetupScreen} />
-      <Stack.Screen name="Division" component={DivisionSetupScreen} />
-      <Stack.Screen name="Township" component={TownshipSetupScreen} />
+      <Stack.Screen name="Org" component={OrgNavigator} />
+      <Stack.Screen name="Division" component={DivisionNavigator} />
+      <Stack.Screen name="Township" component={TownshipNavigator} />
       <Stack.Screen name="Village" component={VillageSetupScreen} />
       <Stack.Screen name="Clinic" component={ClinicSetupScreen} />
     </Stack.Navigator>

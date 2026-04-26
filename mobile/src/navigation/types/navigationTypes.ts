@@ -13,3 +13,18 @@ export type ProjectStackParamList = {
   ProjectList: undefined;
   ProjectForm: { project?: Project } | undefined;
 };
+
+export type Township = {
+  tsp_id: number;
+  tsp_code: string;
+  tsp_name: string;
+  tps_div_id: number;
+  div_name?: string;
+};
+
+export type TownshipStackParamList = {
+  TownshipList: undefined;
+  TownshipForm: {
+    township?: Township;
+  };
+};

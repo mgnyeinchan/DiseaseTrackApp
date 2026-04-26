@@ -63,15 +63,89 @@ INSERT INTO tbl_project (
 ('PRJ-003', 'COVID-19 Response', 'MOH', '2020-03-01', '2023-12-31', 'Pandemic response and vaccination', 0),
 ('PRJ-004', 'Nutrition Support Program', 'SCM', '2024-01-01', '2027-12-31', 'Child nutrition improvement', 1);
 
--- Separate Run
+--- 
+--- test
+INSERT INTO tbl_project (
+    project_code,
+    project_name,
+    project_funder,
+    project_startdate,
+    project_enddate,
+    project_description,
+    project_status
+)
+SELECT
+    'PRJ-' || gs,
+    'Project ' || gs,
+    'FND-' || (gs % 10),
+    CURRENT_DATE,
+    CURRENT_DATE + INTERVAL '30 days',
+    'Load test data ' || gs,
+    1
+FROM generate_series(1, 50000) gs;
 
--- 👉 ဒီလို ၂ ခါ run
+INSERT INTO tbl_org (
+    org_code,
+    org_name,
+    org_shortname
+)
+SELECT
+    'ORG-' || LPAD(gs::text, 3, '0'),
+    'Organization ' || gs,
+    'ORG' || gs
+FROM generate_series(1, 500) gs;
 
--- Step 1
+INSERT INTO tbl_division (div_code, div_name)
+SELECT
+    'DIV-' || gs,
+    'Division ' || gs
+FROM generate_series(1, 10) gs;
 
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
+INSERT INTO tbl_township (
+    tsp_code,
+    tsp_name,
+    tps_div_id
+)
+SELECT
+    'TSP-' || gs,
+    'Township ' || gs,
+    (SELECT div_id FROM tbl_division ORDER BY RANDOM() LIMIT 1)  -- 🔥 SAFE
+FROM generate_series(1, 50) gs;
 
--- Step 2
-CREATE INDEX CONCURRENTLY idx_project_search
-ON tbl_project
-USING gin (project_name gin_trgm_ops, project_code gin_trgm_ops);
+INSERT INTO tbl_village (
+    village_code,
+    village_name,
+    village_namemm,
+    village_malepop,
+    village_femalepop,
+    village_latitude,
+    village_longitude,
+    village_household,
+    village_tsp_id,
+    village_status,
+    village_remark
+)
+SELECT
+    'VIL-' || gs,
+    'Village ' || gs,
+    'ရွာ ' || gs,
+    (random() * 500)::int,
+    (random() * 500)::int,
+    16 + random(),
+    96 + random(),
+    (random() * 200)::int,
+    (SELECT tsp_id FROM tbl_township ORDER BY RANDOM() LIMIT 1), -- 🔥 SAFE
+    1,
+    'Remark ' || gs
+FROM generate_series(1, 500) gs;
+
+INSERT INTO tbl_clinic (
+    cln_code,
+    cln_name,
+    cln_tsp_id
+)
+SELECT
+    'CLN-' || gs,
+    'Clinic ' || gs,
+    (SELECT tsp_id FROM tbl_township ORDER BY RANDOM() LIMIT 1) -- 🔥 SAFE
+FROM generate_series(1, 100) gs;

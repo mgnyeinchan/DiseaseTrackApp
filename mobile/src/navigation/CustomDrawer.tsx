@@ -100,9 +100,27 @@ export default function CustomDrawer({ navigation }: any) {
                     params: {}
                   }
                 })} />
-                <DrawerItem label="Org Setup" onPress={() => navigation.navigate('Org')} />
-                <DrawerItem label="Division Setup" onPress={() => navigation.navigate('Division')} />
-                <DrawerItem label="Township Setup" onPress={() => navigation.navigate('Township')} />
+                <DrawerItem label="Org Setup" onPress={() => navigation.navigate('Home', {
+                  screen: 'Org',
+                  params: {
+                    screen: 'OrgList',
+                    params: {}
+                  }
+                })} />
+                <DrawerItem label="Division Setup" onPress={() => navigation.navigate('Home', {
+                  screen: 'Division',
+                  params: {
+                    screen: 'DivisionList',
+                    params: {}
+                  }
+                })} />
+                <DrawerItem label="Township Setup" onPress={() => navigation.navigate('Home', {
+                  screen: 'Township',
+                  params: {
+                    screen: 'TownshipList',
+                    params: {}
+                  }
+                })} />
                 <DrawerItem label="Village Setup" onPress={() => navigation.navigate('Village')} />
                 <DrawerItem label="Clinic Setup" onPress={() => navigation.navigate('Clinic')} />
               </View>

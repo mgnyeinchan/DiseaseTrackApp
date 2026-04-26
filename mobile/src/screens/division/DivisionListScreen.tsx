@@ -15,10 +15,14 @@ import {
 } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { getProjects, deleteProject } from '../../services/projectApi';
+import {
+  getDivisions,
+  deleteDivision
+} from '../../services/divisionApi';
+
 import { AuthContext } from '../../context/AuthContext';
 
-export default function ProjectListScreen({ navigation }: any) {
+export default function DivisionListScreen({ navigation }: any) {
 
   const { logout } = useContext(AuthContext);
 
@@ -28,7 +32,7 @@ export default function ProjectListScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const [initialLoading, setInitialLoading] = useState(true); // 🔥 fix
+  const [initialLoading, setInitialLoading] = useState(true); // 🔥 FIX
 
   const [hasMore, setHasMore] = useState(true);
   const [total, setTotal] = useState(0);
@@ -40,7 +44,7 @@ export default function ProjectListScreen({ navigation }: any) {
 
   const LIMIT = 10;
 
-  // 🔥 debounce search
+  // 🔥 debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -55,7 +59,7 @@ export default function ProjectListScreen({ navigation }: any) {
       if (isRefresh) setRefreshing(true);
       else setLoading(true);
 
-      const res = await getProjects(pageNumber, LIMIT, debouncedSearch);
+      const res = await getDivisions(pageNumber, LIMIT, debouncedSearch);
 
       if (pageNumber === 1) {
         setData(res.data.data);
@@ -63,7 +67,7 @@ export default function ProjectListScreen({ navigation }: any) {
         setData(prev => {
           const map = new Map();
           [...prev, ...res.data.data].forEach(item => {
-            map.set(item.project_id, item);
+            map.set(item.div_id, item);
           });
           return Array.from(map.values());
         });
@@ -85,14 +89,14 @@ export default function ProjectListScreen({ navigation }: any) {
     } finally {
       setLoading(false);
       setRefreshing(false);
-      setInitialLoading(false); // 🔥 important fix
+      setInitialLoading(false); // 🔥 IMPORTANT
     }
   };
 
-  // 🔥 reload on focus
+  // 🔥 reload
   useFocusEffect(
     useCallback(() => {
-      setInitialLoading(true); // 🔥 reset when re-enter screen
+      setInitialLoading(true); // 🔥 reset
       loadData(1, true);
     }, [debouncedSearch])
   );
@@ -104,10 +108,10 @@ export default function ProjectListScreen({ navigation }: any) {
     }
   };
 
-  // 🔥 optimistic delete
+  // 🔥 delete
   const handleDelete = (id: number) => {
 
-    Alert.alert('Confirm', 'Delete this project?', [
+    Alert.alert('Confirm', 'Delete this division?', [
       { text: 'Cancel' },
       {
         text: 'Delete',
@@ -119,11 +123,11 @@ export default function ProjectListScreen({ navigation }: any) {
 
           const oldData = [...data];
 
-          // remove instantly
-          setData(prev => prev.filter(item => item.project_id !== id));
+          // optimistic remove
+          setData(prev => prev.filter(item => item.div_id !== id));
 
           try {
-            await deleteProject(id);
+            await deleteDivision(id);
           } catch (err: any) {
             setData(oldData); // rollback
             Alert.alert('Error', err.message);
@@ -135,26 +139,22 @@ export default function ProjectListScreen({ navigation }: any) {
     ]);
   };
 
-  // 🔥 skeleton UI
+  // 🔥 skeleton
   const renderSkeleton = () => (
     <Card style={{ margin: 10 }}>
       <Card.Content>
-        <View
-          style={{
-            height: 20,
-            backgroundColor: '#eee',
-            marginBottom: 10,
-            borderRadius: 4
-          }}
-        />
-        <View
-          style={{
-            height: 15,
-            width: '60%',
-            backgroundColor: '#eee',
-            borderRadius: 4
-          }}
-        />
+        <View style={{
+          height: 20,
+          backgroundColor: '#eee',
+          marginBottom: 10,
+          borderRadius: 4
+        }} />
+        <View style={{
+          height: 15,
+          width: '60%',
+          backgroundColor: '#eee',
+          borderRadius: 4
+        }} />
       </Card.Content>
     </Card>
   );
@@ -164,7 +164,7 @@ export default function ProjectListScreen({ navigation }: any) {
 
       {/* 🔍 Search */}
       <TextInput
-        placeholder="Search project..."
+        placeholder="Search division..."
         value={search}
         onChangeText={setSearch}
         style={{ margin: 10 }}
@@ -172,13 +172,12 @@ export default function ProjectListScreen({ navigation }: any) {
 
       {/* 📊 Count */}
       <Text style={{ marginLeft: 10 }}>
-        Showing {data.length} of {total} projects
+        Showing {data.length} of {total}
       </Text>
 
-      {/* 📋 List */}
       <FlatList
         data={data}
-        keyExtractor={(item) => item.project_id.toString()}
+        keyExtractor={(item) => item.div_id.toString()}
 
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
@@ -217,23 +216,23 @@ export default function ProjectListScreen({ navigation }: any) {
         renderItem={({ item }) => (
           <Card style={{ margin: 10 }}>
             <Card.Title
-              title={item.project_name}
-              subtitle={item.project_code}
+              title={item.div_name}
+              subtitle={item.div_code}
             />
 
             <Card.Actions>
               <Button
                 onPress={() =>
-                  navigation.navigate('ProjectForm', { project: item })
+                  navigation.navigate('DivisionForm', { division: item })
                 }
               >
                 Edit
               </Button>
 
               <Button
-                loading={deletingIds.includes(item.project_id)}
-                disabled={deletingIds.includes(item.project_id)}
-                onPress={() => handleDelete(item.project_id)}
+                loading={deletingIds.includes(item.div_id)}
+                disabled={deletingIds.includes(item.div_id)}
+                onPress={() => handleDelete(item.div_id)}
               >
                 Delete
               </Button>
@@ -242,11 +241,10 @@ export default function ProjectListScreen({ navigation }: any) {
         )}
       />
 
-      {/* ➕ FAB */}
       <FAB
         icon="plus"
         style={{ position: 'absolute', right: 20, bottom: 20 }}
-        onPress={() => navigation.navigate('ProjectForm')}
+        onPress={() => navigation.navigate('DivisionForm')}
       />
 
     </View>
