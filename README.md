@@ -56,7 +56,7 @@ cd DiseaseTrackApp
 ### Backend setup
 cd Backend
 npm install
-node server.js
+npm run dev
 
 ### Frontend setup
 cd App
@@ -66,11 +66,17 @@ npx react-native run-android
 
 ## 🗄️ Database Setup
 
-The database schema and roles configuration are located in:
+The database scripts are organized into schema and seed folders:
 
-psql -U postgres -d surveillancedb -f Backend/database/schema.sql
-
-- To initialize the database, run the script using PostgreSQL:
+```
+backend/
+└── database/
+    ├── schema/
+    │   ├── create_tables.sql
+    │   ├── constraints.sql
+    ├── seed/
+    │   └── insert_data.sql
+```
 
 ## 📱 Android Setup
 

@@ -5,21 +5,25 @@ import { jwtDecode } from 'jwt-decode';
 export const AuthContext = createContext<any>(null);
 
 export default function AuthProvider({ children }: any) {
+
+  const [token, setToken] = useState<string | null>(null); // ✅ ADD
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null); 
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const check = async () => {
-  try {
-    const token = await AsyncStorage.getItem('token');
+      try {
+        const storedToken = await AsyncStorage.getItem('token');
 
-        if (!token) {
+        if (!storedToken) {
           setIsLoggedIn(false);
           return;
         }
 
-        const decoded: any = jwtDecode(token);
+        setToken(storedToken); // ✅ ADD
+
+        const decoded: any = jwtDecode(storedToken);
 
         setUser({
           id: decoded.id,
@@ -32,6 +36,7 @@ export default function AuthProvider({ children }: any) {
       } catch (err) {
         console.log('Invalid token → clear');
         await AsyncStorage.removeItem('token');
+        setToken(null); // ✅ ADD
         setIsLoggedIn(false);
       } finally {
         setLoading(false);
@@ -43,6 +48,8 @@ export default function AuthProvider({ children }: any) {
 
   const login = async (token: string) => {
     await AsyncStorage.setItem('token', token);
+
+    setToken(token); // ✅ ADD
 
     const decoded: any = jwtDecode(token);
 
@@ -57,12 +64,13 @@ export default function AuthProvider({ children }: any) {
 
   const logout = async () => {
     await AsyncStorage.removeItem('token');
-    setUser(null); 
+    setToken(null); // ✅ ADD
+    setUser(null);
     setIsLoggedIn(false);
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout, user }}>
+    <AuthContext.Provider value={{ token, isLoggedIn, login, logout, user }}>
       {loading ? null : children}
     </AuthContext.Provider>
   );

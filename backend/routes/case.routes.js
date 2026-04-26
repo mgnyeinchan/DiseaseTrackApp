@@ -1,19 +1,23 @@
 const express = require('express');
-const { verifyToken } = require('../middleware/authMiddleware');
-const { isAdmin } = require('../middleware/authMiddleware');
 const router = express.Router();
+
+const { verifyToken, isAdmin } = require('../middleware/auth.middleware');
 
 const {
   createCase,
   getCases,
   updateCase,
   deleteCase
-} = require('../controllers/caseController');
+} = require('../controllers/case.controller');
 
+// protect all routes
 router.use(verifyToken);
+
 router.post('/', createCase);
 router.get('/', getCases);
 router.put('/:id', updateCase);
-router.delete('/:id', deleteCase);
+
+// admin only delete (optional 🔥)
+router.delete('/:id', isAdmin, deleteCase);
 
 module.exports = router;

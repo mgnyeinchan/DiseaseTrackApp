@@ -8,7 +8,7 @@ import { AuthContext } from '../context/AuthContext';
 export default function CustomDrawer({ navigation }: any) {
   const [openSetup, setOpenSetup] = useState(false);
   const { user } = useContext(AuthContext); // role
-
+  
   return (
     <DrawerContentScrollView>
       <View style={styles.container}>
@@ -25,20 +25,81 @@ export default function CustomDrawer({ navigation }: any) {
         <DrawerItem label="Event-based Surveillance Form" icon="alert-circle-outline"
           onPress={() => navigation.navigate('Event')} />
 
-        {/* 🔹 DATA SETUP (dropdown) */}
+        {/* 🔹 EXPORT */}
+        <Text style={styles.section}>Export</Text>
+
+        <DrawerItem
+          label="Weekly Export"
+          icon="download-outline"
+          onPress={() => navigation.navigate('WeeklyExport')}
+        />
+
+        <DrawerItem
+          label="Case Export"
+          icon="file-tray-full-outline"
+          onPress={() => navigation.navigate('CaseExport')}
+        />
+
+        <DrawerItem
+          label="Event Export"
+          icon="cloud-download-outline"
+          onPress={() => navigation.navigate('EventExport')}
+        />
+
+        {/* 🔹 DASHBOARD */}
+        {(user?.role === 'admin' || user?.role === 'supervisor') && (
+        <>
+            <Text style={styles.section}>Dashboard</Text>
+
+            <DrawerItem
+              label="Summary Dashboard"
+              icon="stats-chart-outline"
+              onPress={() => navigation.navigate('Dashboard', {
+                screen: 'SummaryDashboard'
+              })}
+            />
+
+            <DrawerItem
+              label="Detail Dashboard"
+              icon="bar-chart-outline"
+              onPress={() => navigation.navigate('Dashboard', {
+                screen: 'DetailDashboard'
+              })}
+            />
+        </>
+        )}
+
+        {/* 🔹 DATA SETUP */}
         {(user?.role === 'admin' || user?.role === 'supervisor') && (
           <>
-            <TouchableOpacity onPress={() => setOpenSetup(!openSetup)}>
-              <View style={styles.row}>
-                <Icon name="settings-outline" size={20} />
-                <Text style={styles.label}>Data Setup</Text>
-                <Icon name={openSetup ? "chevron-up" : "chevron-down"} size={20} />
-              </View>
+            {/* ✅ SECTION TITLE */}
+            <Text style={styles.section}>Setup</Text>
+
+            {/* ✅ HEADER (dropdown trigger) */}
+            <TouchableOpacity
+              onPress={() => setOpenSetup(!openSetup)}
+              style={styles.dropdownHeader}
+            >
+              <Icon name="settings-outline" size={20} />
+
+              <Text style={styles.dropdownLabel}>Data Setup</Text>
+
+              <Icon
+                name={openSetup ? 'chevron-up' : 'chevron-down'}
+                size={20}
+              />
             </TouchableOpacity>
 
+            {/* ✅ SUB MENU */}
             {openSetup && (
               <View style={styles.subMenu}>
-                <DrawerItem label="Project Setup" onPress={() => navigation.navigate('Project')} />
+                <DrawerItem label="Project Setup" onPress={() => navigation.navigate('Home', {
+                  screen: 'Projects',
+                  params: {
+                    screen: 'ProjectList',
+                    params: {}
+                  }
+                })} />
                 <DrawerItem label="Org Setup" onPress={() => navigation.navigate('Org')} />
                 <DrawerItem label="Division Setup" onPress={() => navigation.navigate('Division')} />
                 <DrawerItem label="Township Setup" onPress={() => navigation.navigate('Township')} />
@@ -48,35 +109,6 @@ export default function CustomDrawer({ navigation }: any) {
             )}
           </>
         )}
-
-        {/* 🔹 EXPORT */}
-        <Text style={styles.section}>Export</Text>
-
-        <DrawerItem label="Weekly Export" onPress={() => navigation.navigate('WeeklyExport')} />
-        <DrawerItem label="Case Export" onPress={() => navigation.navigate('CaseExport')} />
-        <DrawerItem label="Event Export" onPress={() => navigation.navigate('EventExport')} />
-
-        {/* 🔹 DASHBOARD */}
-        {(user?.role === 'admin' || user?.role === 'supervisor') && (
-        <>
-            <Text style={styles.section}>Dashboard</Text>
-
-            <DrawerItem
-            label="Summary Dashboard"
-            onPress={() => navigation.navigate('Dashboard', {
-                screen: 'SummaryDashboard'
-            })}
-            />
-
-            <DrawerItem
-            label="Detail Dashboard"
-            onPress={() => navigation.navigate('Dashboard', {
-                screen: 'DetailDashboard'
-            })}
-            />
-        </>
-        )}
-
       </View>
     </DrawerContentScrollView>
   );
@@ -84,7 +116,10 @@ export default function CustomDrawer({ navigation }: any) {
 
 function DrawerItem({ label, onPress, icon }: any) {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.item}>
+    <TouchableOpacity
+      onPress={onPress}
+      style={styles.item}
+    >
       {icon && <Icon name={icon} size={20} style={{ marginRight: 10 }} />}
       <Text>{label}</Text>
     </TouchableOpacity>
@@ -116,6 +151,19 @@ const styles = StyleSheet.create({
     marginLeft: 10
   },
   subMenu: {
-    paddingLeft: 20
-  }
+    paddingLeft: 20,
+    marginTop: 5
+  },
+  dropdownHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 5,
+    borderRadius: 8
+  },
+  dropdownLabel: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 14
+  },
 });
