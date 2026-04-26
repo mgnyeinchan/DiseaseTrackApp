@@ -63,3 +63,15 @@ INSERT INTO tbl_project (
 ('PRJ-003', 'COVID-19 Response', 'MOH', '2020-03-01', '2023-12-31', 'Pandemic response and vaccination', 0),
 ('PRJ-004', 'Nutrition Support Program', 'SCM', '2024-01-01', '2027-12-31', 'Child nutrition improvement', 1);
 
+-- Separate Run
+
+-- 👉 ဒီလို ၂ ခါ run
+
+-- Step 1
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+-- Step 2
+CREATE INDEX CONCURRENTLY idx_project_search
+ON tbl_project
+USING gin (project_name gin_trgm_ops, project_code gin_trgm_ops);

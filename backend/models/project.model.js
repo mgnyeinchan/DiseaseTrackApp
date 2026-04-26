@@ -1,20 +1,55 @@
 const db = require('./db');
 
-exports.getAll = async ({ page, limit, search, status }) => {
+exports.getAll = async (params = {}) => {
+  const {
+    page = 1,
+    limit = 10,
+    search = null,
+    status = null
+  } = params;
+
   const offset = (page - 1) * limit;
 
-  return db.query(
-    `
-    SELECT *
+  let where = `WHERE 1=1`;
+  let values = [];
+  let i = 1;
+
+  if (search) {
+    where += ` AND (
+      LOWER(project_name) LIKE LOWER($${i}) 
+      OR LOWER(project_code) LIKE LOWER($${i})
+    )`;
+    values.push(`%${search}%`);
+    i++;
+  }
+
+  if (status !== null) {
+    where += ` AND project_status = $${i}`;
+    values.push(status);
+    i++;
+  }
+
+  // ✅ data query
+  const dataQuery = `
+    SELECT project_id, project_code, project_name, project_funder, project_status
     FROM tbl_project
-    WHERE
-      ($1::text IS NULL OR project_name ILIKE '%' || $1 || '%')
-      AND ($2::int IS NULL OR project_status = $2)
+    ${where}
     ORDER BY project_id DESC
-    LIMIT $3 OFFSET $4
-    `,
-    [search || null, status || null, limit, offset]
-  );
+    LIMIT $${i} OFFSET $${i + 1}
+  `;
+
+  // ✅ count query
+  const countQuery = `
+    SELECT COUNT(*) FROM tbl_project ${where}
+  `;
+
+  const data = await db.query(dataQuery, [...values, limit, offset]);
+  const count = await db.query(countQuery, values);
+
+  return {
+    rows: data.rows,
+    total: parseInt(count.rows[0].count)
+  };
 };
 
 exports.getById = async (id) => {

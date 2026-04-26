@@ -1,21 +1,31 @@
 const service = require('../services/project.service');
 
 exports.getAll = async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const search = req.query.search || null;
-  const status = req.query.status || null;
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || null;
+    const status = req.query.status || null;
 
-  const result = await service.getAll({
-    page,
-    limit,
-    search,
-    status
-  });
+    const result = await service.getAll({
+      page,
+      limit,
+      search,
+      status
+    });
 
-  res.json({
-    data: result.rows
-  });
+    res.json({
+      data: result.rows,
+      meta: {
+        page,
+        limit,
+        total: result.total
+      }
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
 exports.getById = async (req, res) => {
@@ -33,8 +43,12 @@ exports.create = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  const result = await service.update(req.params.id, req.body);
-  res.json(result.rows[0]);
+  try {
+    const result = await service.update(req.params.id, req.body);
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
 };
 
 exports.remove = async (req, res) => {

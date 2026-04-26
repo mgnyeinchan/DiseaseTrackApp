@@ -1,4 +1,4 @@
-import React, { useState, useContext, useCallback } from 'react';
+import React, { useState, useContext, useCallback, useEffect } from 'react';
 import {
   View,
   FlatList,
@@ -29,38 +29,54 @@ export default function ProjectListScreen({ navigation }: any) {
   const [refreshing, setRefreshing] = useState(false);
 
   const [hasMore, setHasMore] = useState(true);
+  const [total, setTotal] = useState(0);
 
-  // 🔥 NEW
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  const [deletingIds, setDeletingIds] = useState<number[]>([]); // 🔥 prevent double click
 
   const LIMIT = 10;
+
+  // 🔥 Debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const loadData = async (pageNumber = 1, isRefresh = false) => {
     try {
       if (isRefresh) setRefreshing(true);
       else setLoading(true);
 
-      const res = await getProjects(
-        pageNumber,
-        LIMIT,
-        search
-      );
+      const res = await getProjects(pageNumber, LIMIT, debouncedSearch);
 
       if (pageNumber === 1) {
         setData(res.data.data);
       } else {
-        setData(prev => [...prev, ...res.data.data]);
+        setData(prev => {
+          const map = new Map();
+          [...prev, ...res.data.data].forEach(item => {
+            map.set(item.project_id, item);
+          });
+          return Array.from(map.values());
+        });
       }
 
+      setTotal(res.data.meta.total);
       setHasMore(res.data.data.length === LIMIT);
       setPage(pageNumber);
 
     } catch (err: any) {
-      console.log(err);
 
       if (err?.response?.status === 401) {
         Alert.alert('Session Expired', 'Please login again');
         logout();
+      } else {
+        Alert.alert('Error', err.message);
       }
 
     } finally {
@@ -69,11 +85,11 @@ export default function ProjectListScreen({ navigation }: any) {
     }
   };
 
-  // 🔥 reload when screen focus
+  // 🔥 reload
   useFocusEffect(
     useCallback(() => {
       loadData(1, true);
-    }, [search])
+    }, [debouncedSearch])
   );
 
   const loadMore = () => {
@@ -82,35 +98,76 @@ export default function ProjectListScreen({ navigation }: any) {
     }
   };
 
+  // 🔥 Optimistic Delete
   const handleDelete = (id: number) => {
+
     Alert.alert('Confirm', 'Delete this project?', [
       { text: 'Cancel' },
       {
         text: 'Delete',
         onPress: async () => {
-          await deleteProject(id);
-          loadData(1, true);
+
+          // prevent double click
+          if (deletingIds.includes(id)) return;
+
+          setDeletingIds(prev => [...prev, id]);
+
+          const oldData = [...data];
+
+          // 🔥 remove from UI immediately
+          setData(prev => prev.filter(item => item.project_id !== id));
+
+          try {
+            await deleteProject(id);
+          } catch (err: any) {
+            // rollback
+            setData(oldData);
+            Alert.alert('Error', err.message);
+          } finally {
+            setDeletingIds(prev => prev.filter(x => x !== id));
+          }
         }
       }
     ]);
   };
 
-  // 🔥 SEARCH HANDLER
-  const handleSearch = (text: string) => {
-    setSearch(text);
-    setPage(1);
-  };
+  // 🔥 Skeleton
+  const renderSkeleton = () => (
+  <Card style={{ margin: 10 }}>
+    <Card.Content>
+      <View
+        style={{
+          height: 20,
+          backgroundColor: '#eee',
+          marginBottom: 10,
+          borderRadius: 4
+        }}
+      />
+      <View
+        style={{
+          height: 15,
+          width: '60%',
+          backgroundColor: '#eee',
+          borderRadius: 4
+        }}
+      />
+    </Card.Content>
+  </Card>
+);
 
   return (
     <View style={{ flex: 1 }}>
 
-      {/* 🔥 SEARCH BOX */}
       <TextInput
         placeholder="Search project..."
         value={search}
-        onChangeText={handleSearch}
+        onChangeText={setSearch}
         style={{ margin: 10 }}
       />
+
+      <Text style={{ marginLeft: 10 }}>
+        Showing {data.length} of {total} projects
+      </Text>
 
       <FlatList
         data={data}
@@ -130,6 +187,18 @@ export default function ProjectListScreen({ navigation }: any) {
           loading ? <ActivityIndicator style={{ margin: 10 }} /> : null
         }
 
+        ListEmptyComponent={
+          loading
+            ? <>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <View key={i}>{renderSkeleton()}</View>
+                ))}
+              </>
+            : <Text style={{ textAlign: 'center', marginTop: 20 }}>
+                No Data
+              </Text>
+        }
+
         renderItem={({ item }) => (
           <Card style={{ margin: 10 }}>
             <Card.Title
@@ -146,7 +215,11 @@ export default function ProjectListScreen({ navigation }: any) {
                 Edit
               </Button>
 
-              <Button onPress={() => handleDelete(item.project_id)}>
+              <Button
+                loading={deletingIds.includes(item.project_id)}
+                disabled={deletingIds.includes(item.project_id)}
+                onPress={() => handleDelete(item.project_id)}
+              >
                 Delete
               </Button>
             </Card.Actions>

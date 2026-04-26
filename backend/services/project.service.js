@@ -9,14 +9,24 @@ exports.getById = async (id) => {
 };
 
 exports.create = async (data) => {
-  if (!data.project_code || !data.project_name) {
-    throw new Error('Required fields missing');
+  if (!data.project_code) {
+    throw new Error('Project code is required');
   }
 
+  if (!data.project_name) {
+    throw new Error('Project name is required');
+  }
   return await model.create(data);
 };
 
 exports.update = async (id, data) => {
+  if (!data.project_code) {
+    throw new Error('Project code is required');
+  }
+
+  if (!data.project_name) {
+    throw new Error('Project name is required');
+  }
   return await model.update(id, data);
 };
 

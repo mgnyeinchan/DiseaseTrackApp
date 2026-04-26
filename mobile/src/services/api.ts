@@ -20,11 +20,21 @@ API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ❗ Global error handler (optional but useful)
+// Error handler
 API.interceptors.response.use(
   (response) => response,
   (error) => {
+
+    if (error.code === 'ECONNABORTED') {
+      error.message = 'Request timeout';
+    }
+
+    if (!error.response) {
+      error.message = 'Network error';
+    }
+
     console.log('API ERROR:', error?.response?.data || error.message);
+
     return Promise.reject(error);
   }
 );
