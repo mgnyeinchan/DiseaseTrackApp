@@ -5,7 +5,8 @@ import {
   Button,
   HelperText,
   Title,
-  Menu
+  Menu,
+  Modal
 } from 'react-native-paper';
 
 import {
@@ -13,6 +14,8 @@ import {
   updateTownship,
   getDivisions
 } from '../../services/townshipApi';
+import { Portal } from 'react-native-paper';
+import { TouchableOpacity } from 'react-native';
 
 type Division = {
   div_id: number;
@@ -40,6 +43,8 @@ export default function TownshipFormScreen({ route, navigation }: any) {
 
   // 🔥 loading
   const [loading, setLoading] = useState(false);
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   // 🔥 load divisions
   useEffect(() => {
@@ -151,34 +156,54 @@ export default function TownshipFormScreen({ route, navigation }: any) {
       </HelperText>
 
       {/* 🔥 Division Dropdown (FIXED UI) */}
-      <Menu
-        visible={menuVisible}
-        onDismiss={() => setMenuVisible(false)}
-        anchor={
+      <View style={{ marginBottom: 10 }}>
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
           <TextInput
-            label="Division *"
+            label="Division *" // 🔥 better label
             value={selectedDivision?.div_name || ''}
             mode="outlined"
             editable={false}
-            right={<TextInput.Icon icon="menu-down" />}
-            onPressIn={() => setMenuVisible(true)}
-            style={{ marginBottom: 5 }}
-            error={!!divisionError}
+            right={<TextInput.Icon icon="chevron-down" />}
           />
-        }
-      >
-        {divisions.map(d => (
-          <Menu.Item
-            key={d.div_id}
-            title={d.div_name}
+        </TouchableOpacity>
+      </View>
+
+      <Portal>
+        <Modal
+          visible={modalVisible}
+          onDismiss={() => setModalVisible(false)}
+          contentContainerStyle={{
+            backgroundColor: 'white',
+            margin: 20,
+            borderRadius: 10,
+            padding: 10
+          }}
+        >
+
+          {/* All option */}
+          <Button
             onPress={() => {
-              setDivisionId(d.div_id);
-              setMenuVisible(false);
-              setDivisionError('');
+              setDivisionId(null);
+              setModalVisible(false);
             }}
-          />
-        ))}
-      </Menu>
+          >
+            All
+          </Button>
+
+          {divisions.map(d => (
+            <Button
+              key={d.div_id}
+              onPress={() => {
+                setDivisionId(d.div_id);
+                setModalVisible(false);
+              }}
+            >
+              {d.div_name}
+            </Button>
+          ))}
+
+        </Modal>
+      </Portal>
 
       <HelperText type="error" visible={!!divisionError}>
         {divisionError}

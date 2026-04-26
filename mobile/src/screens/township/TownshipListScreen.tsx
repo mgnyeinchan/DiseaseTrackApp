@@ -12,7 +12,8 @@ import {
   FAB,
   ActivityIndicator,
   TextInput,
-  Menu
+  Menu,
+  Modal
 } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -23,6 +24,8 @@ import {
 } from '../../services/townshipApi';
 
 import { AuthContext } from '../../context/AuthContext';
+import { Portal } from 'react-native-paper';
+import { TouchableOpacity } from 'react-native';
 
 type Township = {
   tsp_id: number;
@@ -60,6 +63,8 @@ export default function TownshipListScreen({ navigation }: any) {
   const [menuVisible, setMenuVisible] = useState(false);
 
   const [deletingIds, setDeletingIds] = useState<number[]>([]);
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   const LIMIT = 10;
 
@@ -221,40 +226,54 @@ export default function TownshipListScreen({ navigation }: any) {
       />
 
       {/* 🔽 Division Filter */}
-      <Menu
-        visible={menuVisible}
-        onDismiss={() => setMenuVisible(false)}
-        anchor={
+      <View style={{ marginHorizontal: 10, marginBottom: 10 }}>
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
           <TextInput
             label="Filter Division"
             value={selectedDivision?.div_name || ''}
             mode="outlined"
             editable={false}
-            right={<TextInput.Icon icon="menu-down" />}
-            onPressIn={() => setMenuVisible(true)}
-            style={{ marginHorizontal: 10, marginBottom: 5 }}
+            right={<TextInput.Icon icon="chevron-down" />}
           />
-        }
-      >
-        <Menu.Item
-          title="All"
-          onPress={() => {
-            setDivisionId(undefined);
-            setMenuVisible(false);
-          }}
-        />
+        </TouchableOpacity>
+      </View>
 
-        {divisions.map(d => (
-          <Menu.Item
-            key={d.div_id}
-            title={d.div_name}
+      <Portal>
+        <Modal
+          visible={modalVisible}
+          onDismiss={() => setModalVisible(false)}
+          contentContainerStyle={{
+            backgroundColor: 'white',
+            margin: 20,
+            borderRadius: 10,
+            padding: 10
+          }}
+        >
+
+          {/* All option */}
+          <Button
             onPress={() => {
-              setDivisionId(d.div_id);
-              setMenuVisible(false);
+              setDivisionId(undefined);
+              setModalVisible(false);
             }}
-          />
-        ))}
-      </Menu>
+          >
+            All
+          </Button>
+
+          {divisions.map(d => (
+            <Button
+              key={d.div_id}
+              onPress={() => {
+                setDivisionId(d.div_id);
+                setModalVisible(false);
+              }}
+            >
+              {d.div_name}
+            </Button>
+          ))}
+
+        </Modal>
+      </Portal>
 
       {/* 📊 Count */}
       <Text style={{ marginLeft: 10 }}>
@@ -327,7 +346,7 @@ export default function TownshipListScreen({ navigation }: any) {
           </Card>
         )}
       />
-
+      
       {/* ➕ FAB */}
       <FAB
         icon="plus"
