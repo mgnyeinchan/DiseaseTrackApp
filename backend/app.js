@@ -11,6 +11,8 @@ const projectRoutes = require('./routes/project.routes');
 const orgRoutes = require('./routes/org.routes');
 const divisionRoutes = require('./routes/division.routes');
 const townshipRoutes = require('./routes/township.routes');
+const villageRoutes = require('./routes/village.routes');
+const clinicRoutes = require('./routes/clinic.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/cases', caseRoutes);
@@ -18,5 +20,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/orgs', orgRoutes);
 app.use('/api/divisions', divisionRoutes);
 app.use('/api/townships', townshipRoutes);
+app.use('/api/villages', villageRoutes);
+app.use('/api/clinics', clinicRoutes);
 
 module.exports = app;

@@ -28,3 +28,17 @@ export type TownshipStackParamList = {
     township?: Township;
   };
 };
+
+type Village = {
+  village_id: number;
+  village_name: string;
+  village_code: string;
+  village_tsp_id: number;
+};
+
+export type VillageStackParamList = {
+  VillageList: undefined;
+  VillageForm: {
+    village?: Village;
+  };
+};

@@ -1,14 +1,14 @@
-const service = require('../services/township.service');
+const service = require('../services/clinic.service');
 
 exports.getAll = async (req, res) => {
   try {
-    const { page, limit, search, division_id } = req.query;
+    const { page, limit, search, township_id } = req.query;
 
     const result = await service.getAll({
       page: parseInt(page) || 1,
       limit: parseInt(limit) || 10,
       search,
-      division_id
+      township_id
     });
 
     res.json({
@@ -22,6 +22,7 @@ exports.getAll = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 exports.getById = async (req, res) => {
   try {
     const result = await service.getById(req.params.id);
@@ -30,6 +31,7 @@ exports.getById = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 exports.create = async (req, res) => {
   try {
     const result = await service.create(req.body);
@@ -53,6 +55,7 @@ exports.remove = async (req, res) => {
   res.json({ message: 'Deleted successfully' });
 };
 
+// 🔥 dropdown
 exports.getDropdown = async (req, res) => {
   try {
     const result = await service.getDropdown();

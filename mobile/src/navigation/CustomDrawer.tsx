@@ -121,8 +121,20 @@ export default function CustomDrawer({ navigation }: any) {
                     params: {}
                   }
                 })} />
-                <DrawerItem label="Village Setup" onPress={() => navigation.navigate('Village')} />
-                <DrawerItem label="Clinic Setup" onPress={() => navigation.navigate('Clinic')} />
+                <DrawerItem label="Village Setup" onPress={() => navigation.navigate('Home', {
+                  screen: 'Village',
+                  params: {
+                    screen: 'VillageList',
+                    params: {}
+                  }
+                })} />
+                <DrawerItem label="Clinic Setup" onPress={() => navigation.navigate('Home', {
+                  screen: 'Clinic',
+                  params: {
+                    screen: 'ClinicList',
+                    params: {}
+                  }
+                })} />
               </View>
             )}
           </>

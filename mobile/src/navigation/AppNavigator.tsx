@@ -16,6 +16,8 @@ import ProjectNavigator from './ProjectNavigator';
 import OrgNavigator from './OrgNavigator';
 import DivisionNavigator from './DivisionNavigator';
 import TownshipNavigator from './TownshipNavigator';
+import VillageNavigator from './villageNavigator';
+import ClinicNavigator from './clinicNavigator';
 
 const Stack = createStackNavigator();
 
@@ -37,8 +39,8 @@ export default function AppNavigator() {
       <Stack.Screen name="Org" component={OrgNavigator} />
       <Stack.Screen name="Division" component={DivisionNavigator} />
       <Stack.Screen name="Township" component={TownshipNavigator} />
-      <Stack.Screen name="Village" component={VillageSetupScreen} />
-      <Stack.Screen name="Clinic" component={ClinicSetupScreen} />
+      <Stack.Screen name="Village" component={VillageNavigator} />
+      <Stack.Screen name="Clinic" component={ClinicNavigator} />
     </Stack.Navigator>
   );
 }

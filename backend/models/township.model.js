@@ -83,3 +83,11 @@ exports.update = async (id, data) => {
 exports.remove = async (id) => {
   return db.query('DELETE FROM tbl_township WHERE tsp_id=$1', [id]);
 };
+
+exports.getDropdown = async () => {
+  return db.query(`
+    SELECT tsp_id, tsp_name
+    FROM tbl_township
+    ORDER BY tsp_name ASC
+  `);
+};
