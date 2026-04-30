@@ -42,3 +42,8 @@ export type VillageStackParamList = {
     village?: Village;
   };
 };
+
+export type FacilityStackParamList = {
+  FacilityList: undefined;
+  FacilityForm: { facility?: any };
+};

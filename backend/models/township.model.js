@@ -86,8 +86,12 @@ exports.remove = async (id) => {
 
 exports.getDropdown = async () => {
   return db.query(`
-    SELECT tsp_id, tsp_name
-    FROM tbl_township
-    ORDER BY tsp_name ASC
+    SELECT 
+        t.tsp_id,
+        t.tsp_name,
+        d.div_name
+    FROM tbl_township t
+    LEFT JOIN tbl_division d ON t.tps_div_id = d.div_id
+    ORDER BY t.tsp_name
   `);
 };

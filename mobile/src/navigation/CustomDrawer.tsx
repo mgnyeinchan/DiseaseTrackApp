@@ -20,7 +20,13 @@ export default function CustomDrawer({ navigation }: any) {
           onPress={() => navigation.navigate('Weekly')} />
 
         <DrawerItem label="Case-based Reporting Form" icon="medkit-outline"
-          onPress={() => navigation.navigate('Case')} />
+          onPress={() => navigation.navigate('Home', {
+          screen: 'Casebase',
+          params: {
+            screen: 'CasebaseForm',
+            params: {}
+          }
+        })} />
 
         <DrawerItem label="Event-based Surveillance Form" icon="alert-circle-outline"
           onPress={() => navigation.navigate('Event')} />
@@ -35,9 +41,15 @@ export default function CustomDrawer({ navigation }: any) {
         />
 
         <DrawerItem
-          label="Case Export"
+          label="Casebase Export"
           icon="file-tray-full-outline"
-          onPress={() => navigation.navigate('CaseExport')}
+          onPress={() => navigation.navigate('Home', {
+          screen: 'Casebase',
+          params: {
+            screen: 'CasebaseList',
+            params: {}
+          }
+        })}
         />
 
         <DrawerItem
@@ -132,6 +144,20 @@ export default function CustomDrawer({ navigation }: any) {
                   screen: 'Clinic',
                   params: {
                     screen: 'ClinicList',
+                    params: {}
+                  }
+                })} />
+                <DrawerItem label="Disease Setup" onPress={() => navigation.navigate('Home', {
+                  screen: 'Disease',
+                  params: {
+                    screen: 'DiseaseList',
+                    params: {}
+                  }
+                })} />
+                <DrawerItem label="Facility Setup" onPress={() => navigation.navigate('Home', {
+                  screen: 'Facility',
+                  params: {
+                    screen: 'FacilityList',
                     params: {}
                   }
                 })} />

@@ -49,3 +49,16 @@ exports.remove = async (req, res) => {
   await service.remove(req.params.id);
   res.json({ message: 'Deleted successfully' });
 };
+
+exports.dropdown = async (req, res) => {
+  try {
+    const result = await service.dropdown();
+
+    res.json(result.rows);
+
+  } catch (err) {
+    res.status(500).json({
+      message: err.message
+    });
+  }
+};

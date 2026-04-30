@@ -27,3 +27,14 @@ exports.update = async (id, data) => {
 exports.remove = async (id) => {
   return await model.remove(id);
 };
+
+const service = require('../services/division.service');
+
+exports.dropdown = async (req, res) => {
+  try {
+    const result = await service.dropdown();
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

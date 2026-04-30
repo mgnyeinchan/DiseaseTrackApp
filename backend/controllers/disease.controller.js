@@ -1,18 +1,18 @@
-const service = require('../services/division.service');
+const service = require('../services/disease.service');
 
 exports.getAll = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const search = req.query.search || null;
+    const { page, limit, search } = req.query;
 
-    const result = await service.getAll({ page, limit, search });
+    const result = await service.getAll({
+      page: parseInt(page) || 1,
+      limit: parseInt(limit) || 10,
+      search
+    });
 
     res.json({
       data: result.rows,
       meta: {
-        page,
-        limit,
         total: result.total
       }
     });
@@ -21,19 +21,14 @@ exports.getAll = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-exports.getAllDivision = async (req, res) => {
+
+exports.getById = async (req, res) => {
   try {
-    const result = await service.getAllDivision();
-
-    res.json(result.rows);
-
+    const result = await service.getById(req.params.id);
+    res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-};
-exports.getById = async (req, res) => {
-  const result = await service.getById(req.params.id);
-  res.json(result.rows[0]);
 };
 
 exports.create = async (req, res) => {

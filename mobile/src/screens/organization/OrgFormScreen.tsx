@@ -1,248 +1,142 @@
-import React, { useState, useContext, useCallback, useEffect } from 'react';
+import React, { useState } from 'react';
+import { ScrollView, Alert, View } from 'react-native';
 import {
-  View,
-  FlatList,
-  RefreshControl,
-  Alert
-} from 'react-native';
-import {
-  Card,
-  Text,
+  TextInput,
   Button,
-  FAB,
-  ActivityIndicator,
-  TextInput
+  HelperText,
+  Title,
+  Divider
 } from 'react-native-paper';
-import { useFocusEffect } from '@react-navigation/native';
 
 import {
-  getOrgs,
-  deleteOrg
+  createOrg,
+  updateOrg
 } from '../../services/orgApi';
 
-import { AuthContext } from '../../context/AuthContext';
+export default function OrgFormScreen({ route, navigation }: any) {
 
-export default function OrgListScreen({ navigation }: any) {
+  const org = route.params?.org;
 
-  const { logout } = useContext(AuthContext);
+  // 🔥 form state
+  const [code, setCode] = useState(org?.org_code || '');
+  const [name, setName] = useState(org?.org_name || '');
 
-  const [data, setData] = useState<any[]>([]);
-  const [page, setPage] = useState(1);
+  // 🔥 error state
+  const [codeError, setCodeError] = useState('');
+  const [nameError, setNameError] = useState('');
 
+  // 🔥 loading
   const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
 
-  const [initialLoading, setInitialLoading] = useState(true); // 🔥 FIX
+  // 🔥 validation
+  const validate = () => {
+    let valid = true;
 
-  const [hasMore, setHasMore] = useState(true);
-  const [total, setTotal] = useState(0);
+    if (!code.trim()) {
+      setCodeError('Organization code is required');
+      valid = false;
+    } else setCodeError('');
 
-  const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+    if (!name.trim()) {
+      setNameError('Organization name is required');
+      valid = false;
+    } else setNameError('');
 
-  const [deletingIds, setDeletingIds] = useState<number[]>([]);
+    return valid;
+  };
 
-  const LIMIT = 10;
+  // 🔥 save (create + update)
+  const handleSave = async () => {
+    if (loading) return;
+    if (!validate()) return;
 
-  // 🔥 debounce
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [search]);
-
-  const loadData = async (pageNumber = 1, isRefresh = false) => {
     try {
-      if (isRefresh) setRefreshing(true);
-      else setLoading(true);
+      setLoading(true);
 
-      const res = await getOrgs(pageNumber, LIMIT, debouncedSearch);
+      const payload = {
+        org_code: code,
+        org_name: name
+      };
 
-      if (pageNumber === 1) {
-        setData(res.data.data);
+      if (org) {
+        await updateOrg(org.org_id, payload);
       } else {
-        setData(prev => {
-          const map = new Map();
-          [...prev, ...res.data.data].forEach(item => {
-            map.set(item.org_id, item);
-          });
-          return Array.from(map.values());
-        });
+        await createOrg(payload);
       }
 
-      setTotal(res.data.meta.total);
-      setHasMore(res.data.data.length === LIMIT);
-      setPage(pageNumber);
+      Alert.alert(
+        'Success',
+        org ? 'Updated successfully' : 'Created successfully'
+      );
+
+      navigation.goBack();
 
     } catch (err: any) {
-
-      if (err?.response?.status === 401) {
-        Alert.alert('Session Expired', 'Please login again');
-        logout();
-      } else {
-        Alert.alert('Error', err.message);
-      }
-
+      Alert.alert(
+        'Error',
+        err?.response?.data?.message || err.message
+      );
     } finally {
       setLoading(false);
-      setRefreshing(false);
-      setInitialLoading(false); // 🔥 IMPORTANT
     }
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      setInitialLoading(true); // 🔥 reset
-      loadData(1, true);
-    }, [debouncedSearch])
-  );
-
-  const loadMore = () => {
-    if (!loading && hasMore) {
-      loadData(page + 1);
-    }
-  };
-
-  // 🔥 delete
-  const handleDelete = (id: number) => {
-
-    Alert.alert('Confirm', 'Delete this organization?', [
-      { text: 'Cancel' },
-      {
-        text: 'Delete',
-        onPress: async () => {
-
-          if (deletingIds.includes(id)) return;
-
-          setDeletingIds(prev => [...prev, id]);
-
-          const oldData = [...data];
-
-          setData(prev => prev.filter(item => item.org_id !== id));
-
-          try {
-            await deleteOrg(id);
-          } catch (err: any) {
-            setData(oldData);
-            Alert.alert('Error', err.message);
-          } finally {
-            setDeletingIds(prev => prev.filter(x => x !== id));
-          }
-        }
-      }
-    ]);
-  };
-
-  // 🔥 skeleton
-  const renderSkeleton = () => (
-    <Card style={{ margin: 10 }}>
-      <Card.Content>
-        <View style={{
-          height: 20,
-          backgroundColor: '#eee',
-          marginBottom: 10,
-          borderRadius: 4
-        }} />
-        <View style={{
-          height: 15,
-          width: '60%',
-          backgroundColor: '#eee',
-          borderRadius: 4
-        }} />
-      </Card.Content>
-    </Card>
-  );
 
   return (
-    <View style={{ flex: 1 }}>
+    <ScrollView contentContainerStyle={{ padding: 20 }}>
 
-      {/* 🔍 Search */}
-      <TextInput
-        placeholder="Search organization..."
-        value={search}
-        onChangeText={setSearch}
-        style={{ margin: 10 }}
-      />
+      {/* 🔥 Title */}
+      <Title style={{ marginBottom: 20 }}>
+        {org ? 'Edit Organization' : 'Create Organization'}
+      </Title>
 
-      {/* 📊 Count */}
-      <Text style={{ marginLeft: 10 }}>
-        Showing {data.length} of {total}
-      </Text>
+      {/* 🔹 Form Section */}
+      <View style={{ marginBottom: 20 }}>
 
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.org_id.toString()}
+        <TextInput
+          label="Organization Code *"
+          value={code}
+          onChangeText={(text) => {
+            setCode(text);
+            if (codeError) setCodeError('');
+          }}
+          mode="outlined"
+          style={{ marginBottom: 5 }}
+          error={!!codeError}
+        />
+        <HelperText type="error" visible={!!codeError}>
+          {codeError}
+        </HelperText>
 
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.5}
+        <TextInput
+          label="Organization Name *"
+          value={name}
+          onChangeText={(text) => {
+            setName(text);
+            if (nameError) setNameError('');
+          }}
+          mode="outlined"
+          style={{ marginBottom: 5 }}
+          error={!!nameError}
+        />
+        <HelperText type="error" visible={!!nameError}>
+          {nameError}
+        </HelperText>
 
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => loadData(1, true)}
-          />
-        }
+      </View>
 
-        ListFooterComponent={
-          loading && !initialLoading
-            ? <ActivityIndicator style={{ margin: 10 }} />
-            : null
-        }
+      <Divider style={{ marginVertical: 10 }} />
 
-        ListEmptyComponent={() => {
-          if (initialLoading) {
-            return (
-              <>
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <View key={i}>{renderSkeleton()}</View>
-                ))}
-              </>
-            );
-          }
+      {/* 🔥 Save Button */}
+      <Button
+        mode="contained"
+        onPress={handleSave}
+        loading={loading}
+        disabled={loading}
+        style={{ marginTop: 10 }}
+      >
+        {org ? 'Update' : 'Create'}
+      </Button>
 
-          return (
-            <Text style={{ textAlign: 'center', marginTop: 20 }}>
-              No Data
-            </Text>
-          );
-        }}
-
-        renderItem={({ item }) => (
-          <Card style={{ margin: 10 }}>
-            <Card.Title
-              title={item.org_name}
-              subtitle={item.org_code}
-            />
-
-            <Card.Actions>
-              <Button
-                onPress={() =>
-                  navigation.navigate('OrgForm', { org: item })
-                }
-              >
-                Edit
-              </Button>
-
-              <Button
-                loading={deletingIds.includes(item.org_id)}
-                disabled={deletingIds.includes(item.org_id)}
-                onPress={() => handleDelete(item.org_id)}
-              >
-                Delete
-              </Button>
-            </Card.Actions>
-          </Card>
-        )}
-      />
-
-      <FAB
-        icon="plus"
-        style={{ position: 'absolute', right: 20, bottom: 20 }}
-        onPress={() => navigation.navigate('OrgForm')}
-      />
-
-    </View>
+    </ScrollView>
   );
 }

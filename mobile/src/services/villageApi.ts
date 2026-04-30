@@ -22,3 +22,6 @@ export const deleteVillage = (id: number) =>
 
 export const getTownshipsDropdown = () =>
   API.get('/api/townships/dropdown');
+
+export const getVillagesDropdown = () =>
+  API.get('/api/villages/dropdown');

@@ -1,36 +1,28 @@
-const service = require('../services/division.service');
+const service = require('../services/casebase.service');
 
 exports.getAll = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const search = req.query.search || null;
+    const { page, limit, search, tsp_id, div_id, facility_id } = req.query;
 
-    const result = await service.getAll({ page, limit, search });
+    const result = await service.getAll({
+      page: parseInt(page) || 1,
+      limit: parseInt(limit) || 10,
+      search,
+      tsp_id,
+      div_id,
+      facility_id
+    });
 
     res.json({
       data: result.rows,
-      meta: {
-        page,
-        limit,
-        total: result.total
-      }
+      meta: { total: result.total }
     });
 
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
-exports.getAllDivision = async (req, res) => {
-  try {
-    const result = await service.getAllDivision();
 
-    res.json(result.rows);
-
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
 exports.getById = async (req, res) => {
   const result = await service.getById(req.params.id);
   res.json(result.rows[0]);
@@ -57,13 +49,4 @@ exports.update = async (req, res) => {
 exports.remove = async (req, res) => {
   await service.remove(req.params.id);
   res.json({ message: 'Deleted successfully' });
-};
-
-exports.dropdown = async (req, res) => {
-  try {
-    const result = await service.dropdown();
-    res.json(result.rows);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
 };

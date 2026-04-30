@@ -13,6 +13,9 @@ const divisionRoutes = require('./routes/division.routes');
 const townshipRoutes = require('./routes/township.routes');
 const villageRoutes = require('./routes/village.routes');
 const clinicRoutes = require('./routes/clinic.routes');
+const diseaseRoutes = require('./routes/disease.routes');
+const facilityRoutes = require('./routes/facility.router');
+const casebaseRoutes = require('./routes/casebase.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/cases', caseRoutes);
@@ -22,5 +25,8 @@ app.use('/api/divisions', divisionRoutes);
 app.use('/api/townships', townshipRoutes);
 app.use('/api/villages', villageRoutes);
 app.use('/api/clinics', clinicRoutes);
+app.use('/api/diseases', diseaseRoutes);
+app.use('/api/facilities', facilityRoutes);
+app.use('/api/casebases', casebaseRoutes);
 
 module.exports = app;

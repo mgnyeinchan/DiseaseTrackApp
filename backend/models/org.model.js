@@ -72,3 +72,11 @@ exports.update = (id, data) => {
 exports.remove = (id) => {
   return db.query('DELETE FROM tbl_org WHERE org_id=$1', [id]);
 };
+
+exports.dropdown = async () => {
+  return db.query(`
+    SELECT org_id, org_name
+    FROM tbl_org
+    ORDER BY org_name ASC
+  `);
+};

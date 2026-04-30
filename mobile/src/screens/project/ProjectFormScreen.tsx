@@ -157,7 +157,7 @@ export default function ProjectFormScreen({ route, navigation }: Props) {
         loading={loading}
         disabled={loading}
       >
-        {project ? 'Update Project' : 'Create Project'}
+        {project ? 'Update' : 'Create'}
       </Button>
 
     </ScrollView>

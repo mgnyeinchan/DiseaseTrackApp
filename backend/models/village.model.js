@@ -146,3 +146,17 @@ exports.remove = async (id) => {
     [id]
   );
 };
+
+exports.dropdown = () => {
+  return db.query(`
+    SELECT 
+      v.village_id,
+      v.village_name,
+      v.village_tsp_id AS tsp_id,
+      t.tsp_name
+    FROM tbl_village v
+    LEFT JOIN tbl_township t 
+      ON v.village_tsp_id = t.tsp_id
+    ORDER BY v.village_name
+  `);
+};

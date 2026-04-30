@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const controller = require('../controllers/org.controller');
+const controller = require('../controllers/facility.controller');
 const { verifyToken } = require('../middleware/auth.middleware');
 
 router.get('/dropdown', verifyToken, controller.dropdown);

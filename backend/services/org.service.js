@@ -19,3 +19,7 @@ exports.update = async (id, data) => {
 };
 
 exports.remove = (id) => model.remove(id);
+
+exports.dropdown = async () => {
+  return model.dropdown();
+};

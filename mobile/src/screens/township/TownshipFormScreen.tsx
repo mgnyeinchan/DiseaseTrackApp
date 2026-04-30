@@ -216,7 +216,7 @@ export default function TownshipFormScreen({ route, navigation }: any) {
         loading={loading}
         disabled={loading}
       >
-        {township ? 'Update Township' : 'Create Township'}
+        {township ? 'Update' : 'Create'}
       </Button>
 
     </ScrollView>
