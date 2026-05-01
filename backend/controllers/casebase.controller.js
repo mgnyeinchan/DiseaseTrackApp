@@ -1,6 +1,7 @@
 const service = require('../services/casebase.service');
 
 exports.getAll = async (req, res) => {
+  console.log('casebase > getAll');
   try {
     const { page, limit, search, tsp_id, div_id, facility_id } = req.query;
 
@@ -24,8 +25,11 @@ exports.getAll = async (req, res) => {
 };
 
 exports.getById = async (req, res) => {
+  console.log('casebase > getById');
+
   const result = await service.getById(req.params.id);
-  res.json(result.rows[0]);
+
+  res.json(result);
 };
 
 exports.create = async (req, res) => {

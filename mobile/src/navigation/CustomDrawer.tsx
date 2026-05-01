@@ -22,6 +22,7 @@ export default function CustomDrawer({ navigation }: any) {
         <DrawerItem label="Case-based Reporting Form" icon="medkit-outline"
           onPress={() => navigation.navigate('Home', {
           screen: 'Casebase',
+          isCreate: true,
           params: {
             screen: 'CasebaseForm',
             params: {}

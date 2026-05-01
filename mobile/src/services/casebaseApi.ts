@@ -16,9 +16,9 @@ export const getCasebases = (
   });
 };
 // casebaseApi.ts
-export const getCasebaseById = (id: number) => {
+export const getCasebaseById = (id: number) =>
   API.get(`/api/casebases/${id}`);
-};
+
 export const createCasebase = (data: any) =>
   API.post('/api/casebases', data);
 

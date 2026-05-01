@@ -22,10 +22,12 @@ import { getFacilitiesDropdown } from '../../services/facilityApi';
 import { getTownshipsDropdown } from '../../services/clinicApi';
 import { getDiseasesDropdown } from '../../services/diseaseApi';
 import { getVillagesDropdown } from '../../services/villageApi';
+import { getCasebaseById } from '../../services/casebaseApi';
 
 export default function CasebaseFormScreen({ route, navigation }: any) {
 
   const data = route.params?.data;
+  const id = route.params?.id || data?.casebase_id;
 
   const [form, setForm] = useState<any>({
     reporter_name: '',
@@ -56,17 +58,68 @@ export default function CasebaseFormScreen({ route, navigation }: any) {
 
   const [modal, setModal] = useState<string | null>(null);
 
+  const [afpForm, setAfpForm] = useState<any>({
+    opv_ipv_vaccinated: '',
+    paralysis_duration: '',
+    acute_paralysis: '',
+    fever_within_3weeks: '',
+    fever_onset_day: '',
+    patient_status: ''
+  });
+
+  // reusable radio row
+  const RadioRow = ({ value, label, selected, onSelect }: any) => (
+    <TouchableOpacity
+      onPress={() => onSelect(value)}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 15,
+        marginBottom: 8
+      }}
+    >
+      <RadioButton
+        value={value}
+        status={selected === value ? 'checked' : 'unchecked'}
+        onPress={() => onSelect(value)}
+      />
+      <Text>{label}</Text>
+    </TouchableOpacity>
+  );
+  
+
   useEffect(() => {
     getFacilitiesDropdown().then(r => setFacilities(r.data || []));
     getTownshipsDropdown().then(r => setTownships(r.data || []));
     getVillagesDropdown().then(r => setVillages(r.data || []));
     getDiseasesDropdown().then(r => setDiseases(r.data || []));
 
-    if (data) setForm(data); // update mode
-  }, []);
+    // ✅ priority 1: API call (full data)
+    if (id) {
+      getCasebaseById(id).then(res => {
+        const fullData = res.data;
+
+        setForm(fullData);
+
+        if (fullData?.disease_id === 1 && fullData?.disease_detail) {
+          setAfpForm(fullData.disease_detail);
+        }
+      });
+    }
+
+    // ✅ fallback: route data (fast UI)
+    else if (data) {
+      setForm(data);
+
+      if (data?.disease_id === 1 && data?.disease_detail) {
+        setAfpForm(data.disease_detail);
+      }
+    }
+
+  }, [id]);
 
   useEffect(() => {
-    if (!data) {
+    if (!id) {
       setForm({
         reporter_name: '',
         reporter_position: '',
@@ -84,7 +137,7 @@ export default function CasebaseFormScreen({ route, navigation }: any) {
         disease_id: null
       });
     }
-  }, [data]);
+  }, [id]);
 
   const selectedFacility = facilities.find(f => f.facility_id === form.facility_id);
   const selectedTownship = townships.find(t => t.tsp_id === form.tsp_id);
@@ -106,15 +159,17 @@ export default function CasebaseFormScreen({ route, navigation }: any) {
         tsp_id: form.tsp_id || null,
         village_id: form.village_id || null,
         disease_id: form.disease_id || null,
+        
+        afp: form.disease_id === 1 ? afpForm : null
       };
 
-      if (data) {
-        await updateCasebase(data.casebase_id, payload);
+      if (id) {
+        await updateCasebase(id, payload);
       } else {
         await createCasebase(payload);
       }
 
-      Alert.alert('Success', data ? 'Updated Successfully' : 'Created Successfully');
+      Alert.alert('Success', id ? 'Updated Successfully' : 'Created Successfully');
       navigation.goBack();
 
     } catch (err: any) {
@@ -130,7 +185,30 @@ export default function CasebaseFormScreen({ route, navigation }: any) {
         <Button
           style={{ alignItems: 'flex-start' }}
           onPress={() => {
-            setForm({ ...form, [key]: item[key] });
+
+            const newForm = { ...form, [key]: item[key] };
+            setForm(newForm);
+
+            // 🔥 IMPORTANT: disease only logic
+            if (key === 'disease_id') {
+
+              // AFP reset
+              if (item.disease_id === 1) {
+                setAfpForm({
+                  opv_ipv_vaccinated: '',
+                  paralysis_duration: '',
+                  acute_paralysis: '',
+                  fever_within_3weeks: '',
+                  fever_onset_day: '',
+                  patient_status: ''
+                });
+              }
+
+              // 👉 future (other disease reset)
+              // else if (item.disease_id === 2) { ... }
+
+            }
+
             setModal(null);
           }}
         >
@@ -322,7 +400,7 @@ export default function CasebaseFormScreen({ route, navigation }: any) {
           )}
         </Card.Content>
       </Card>
-
+          
       {/* Modal */}
       <Portal>
         <Modal
@@ -341,12 +419,149 @@ export default function CasebaseFormScreen({ route, navigation }: any) {
           {modal === 'disease' && renderList(diseases, 'disease_id', 'disease_name')}
         </Modal>
       </Portal>
+      
+      {/* AFP Form */}
+      {form.disease_id === 1 && (
+        <Card style={{ marginBottom: 20, borderRadius: 10 }}>
+          <Card.Content>
+
+            <Title style={{ marginBottom: 10 }}>
+              AFP (ပိုလီယို သံသယ)
+            </Title>
+
+            {/* ================= Vaccine ================= */}
+            <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>
+              ကာကွယ်ဆေးထိုး မှတ်တမ်း
+            </Text>
+
+            <Card style={{ marginBottom: 15, backgroundColor: '#f5f5f5' }}>
+              <Card.Content>
+
+                <Text style={{ marginBottom: 5 }}>
+                  ပိုလီယို ကာကွယ်ဆေး (OPV/IPV)
+                </Text>
+
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                  <RadioRow
+                    value="ရှိ"
+                    label="ရှိ"
+                    selected={afpForm.opv_ipv_vaccinated}
+                    onSelect={(v: any) =>
+                      setAfpForm({ ...afpForm, opv_ipv_vaccinated: v })
+                    }
+                  />
+                  <RadioRow
+                    value="မရှိပါ"
+                    label="မရှိပါ"
+                    selected={afpForm.opv_ipv_vaccinated}
+                    onSelect={(v: any) =>
+                      setAfpForm({ ...afpForm, opv_ipv_vaccinated: v })
+                    }
+                  />
+                  <RadioRow
+                    value="မသိပါ"
+                    label="မသိပါ"
+                    selected={afpForm.opv_ipv_vaccinated}
+                    onSelect={(v: any) =>
+                      setAfpForm({ ...afpForm, opv_ipv_vaccinated: v })
+                    }
+                  />
+                </View>
+
+              </Card.Content>
+            </Card>
+
+            {/* ================= Symptoms ================= */}
+            <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>
+              ရောဂါသွင်ပြင်လက္ခဏာ
+            </Text>
+
+            <Card style={{ backgroundColor: '#f5f5f5' }}>
+              <Card.Content>
+
+                {[
+                  {
+                    label: 'ပျော့ခွေအကြာသေခြင်း',
+                    key: 'paralysis_duration',
+                    options: [
+                      { label: 'ရှိ', value: 'ရှိ' },
+                      { label: 'မရှိပါ', value: 'မရှိပါ' },
+                      { label: 'သံသယ', value: 'သံသယ' }
+                    ]
+                  },
+                  {
+                    label: 'လတ်တလောအကြောသေခြင်း',
+                    key: 'acute_paralysis',
+                    options: [
+                      { label: 'ရှိ', value: 'ရှိ' },
+                      { label: 'မရှိပါ', value: 'မရှိပါ' },
+                      { label: 'သံသယ', value: 'သံသယ' }
+                    ]
+                  },
+                  {
+                    label: '၃ ပတ်အတွင်း အဖျားရှိခဲ့ပါသလား',
+                    key: 'fever_within_3weeks',
+                    options: [
+                      { label: 'ရှိ', value: 'ရှိ' },
+                      { label: 'မရှိပါ', value: 'မရှိပါ' },
+                      { label: 'မသိပါ', value: 'မသိပါ' }
+                    ]
+                  },
+                  {
+                    label: 'ဖြစ်သည့်နေ့တွင် အဖျားရှိခဲ့ပါသလား',
+                    key: 'fever_onset_day',
+                    options: [
+                      { label: 'ရှိ', value: 'ရှိ' },
+                      { label: 'မရှိပါ', value: 'မရှိပါ' },
+                      { label: 'မသိပါ', value: 'မသိပါ' }
+                    ]
+                  },
+                  {
+                    label: 'လူနာ အခြေအနေ',
+                    key: 'patient_status',
+                    options: [
+                      { label: 'အသက်ရှင်', value: 'အသက်ရှင်' },
+                      { label: 'သေဆုံး', value: 'သေဆုံး' },
+                      { label: 'မသိပါ', value: 'မသိပါ' }
+                    ]
+                  }
+                ].map((item, index) => (
+                  <View key={index} style={{ marginBottom: 12 }}>
+
+                    <Text style={{ marginBottom: 4 }}>
+                      {item.label}
+                    </Text>
+
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                      {item.options.map((opt, i) => (
+                        <RadioRow
+                          key={i}
+                          value={opt.value}
+                          label={opt.label}
+                          selected={afpForm[item.key]}
+                          onSelect={(v: any) =>
+                            setAfpForm({ ...afpForm, [item.key]: v })
+                          }
+                        />
+                      ))}
+                    </View>
+
+                  </View>
+                ))}
+
+              </Card.Content>
+            </Card>
+
+          </Card.Content>
+        </Card>
+      )}
+      
 
       <Button
         mode="contained"
         onPress={handleSave}
       >
-        {data ? 'Update' : 'Create'}
+        {id ? 'Update' : 'Create'}
       </Button>
 
     </ScrollView>

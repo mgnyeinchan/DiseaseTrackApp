@@ -261,8 +261,8 @@ export default function CasebaseListScreen({ navigation }: any) {
 
             <Card.Actions>
 
-              {/* ✅ FIXED EDIT */}
-              <Button onPress={() => navigation.navigate('CasebaseForm', {
+              {/* FIXED EDIT */}
+              {/* <Button onPress={() => navigation.navigate('CasebaseForm', {
                 data: {
                   ...item,
                   facility_id: item.facility_id,
@@ -270,6 +270,11 @@ export default function CasebaseListScreen({ navigation }: any) {
                   village_id: item.village_id,
                   disease_id: item.disease_id
                 }
+              })}>
+                Edit
+              </Button> */}
+              <Button onPress={() => navigation.navigate('CasebaseForm', {
+                id: item.casebase_id
               })}>
                 Edit
               </Button>
