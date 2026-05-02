@@ -100,14 +100,24 @@ exports.remove = async (id) => {
     [id]
   );
 };
-
-exports.dropdown = async () => {
+exports.casebasedropdown = async () => {
   return db.query(`
     SELECT 
       disease_id,
       disease_name,
       disease_definition
     FROM tbl_disease
-    ORDER BY disease_name ASC
+    WHERE disease_id < 9
+    ORDER BY disease_id ASC
+  `);
+};
+exports.weeklydropdown = async () => {
+  return db.query(`
+    SELECT 
+      disease_id,
+      disease_name,
+      disease_definition
+    FROM tbl_disease
+    ORDER BY disease_id ASC
   `);
 };

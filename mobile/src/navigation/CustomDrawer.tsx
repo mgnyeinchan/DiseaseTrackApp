@@ -17,7 +17,14 @@ export default function CustomDrawer({ navigation }: any) {
         <Text style={styles.section}>Data Entry</Text>
 
         <DrawerItem label="Weekly Reporting Form" icon="document-text-outline"
-          onPress={() => navigation.navigate('Weekly')} />
+          onPress={() => navigation.navigate('Home', {
+          screen: 'Weekly',
+          isCreate: true,
+          params: {
+            screen: 'WeeklyReportForm',
+            params: {}
+          }
+        })}  />
 
         <DrawerItem label="Case-based Reporting Form" icon="medkit-outline"
           onPress={() => navigation.navigate('Home', {
@@ -38,7 +45,13 @@ export default function CustomDrawer({ navigation }: any) {
         <DrawerItem
           label="Weekly Export"
           icon="download-outline"
-          onPress={() => navigation.navigate('WeeklyExport')}
+          onPress={() => navigation.navigate('Home', {
+          screen: 'Weekly',
+          params: {
+            screen: 'WeeklyReportList',
+            params: {}
+          }
+        })}
         />
 
         <DrawerItem

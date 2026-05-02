@@ -1,13 +1,15 @@
-const service = require('../services/disease.service');
+const service = require('../services/weeklyreport.service');
 
 exports.getAll = async (req, res) => {
   try {
-    const { page, limit, search } = req.query;
+    const { page, limit, year, week, facility_id } = req.query;
 
     const result = await service.getAll({
       page: parseInt(page) || 1,
       limit: parseInt(limit) || 10,
-      search
+      year,
+      week,
+      facility_id
     });
 
     res.json({
@@ -25,7 +27,7 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const result = await service.getById(req.params.id);
-    res.json(result.rows[0]);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -52,21 +54,4 @@ exports.update = async (req, res) => {
 exports.remove = async (req, res) => {
   await service.remove(req.params.id);
   res.json({ message: 'Deleted successfully' });
-};
-
-exports.casebasedropdown = async (req, res) => {
-  try {
-    const result = await service.casebasedropdown();
-    res.json(result.rows);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-exports.weeklydropdown = async (req, res) => {
-  try {
-    const result = await service.weeklydropdown();
-    res.json(result.rows);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
 };

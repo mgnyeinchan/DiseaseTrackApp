@@ -1,12 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-const controller = require('../controllers/disease.controller');
+const controller = require('../controllers/weeklyreport.controller');
 const { verifyToken } = require('../middleware/auth.middleware');
 
 // 🔐 protected routes
-router.get('/casebasedropdown', verifyToken, controller.casebasedropdown);
-router.get('/weeklydropdown', verifyToken, controller.weeklydropdown);
 router.get('/', verifyToken, controller.getAll);
 router.get('/:id', verifyToken, controller.getById);
 router.post('/', verifyToken, controller.create);

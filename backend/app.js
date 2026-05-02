@@ -16,6 +16,7 @@ const clinicRoutes = require('./routes/clinic.routes');
 const diseaseRoutes = require('./routes/disease.routes');
 const facilityRoutes = require('./routes/facility.router');
 const casebaseRoutes = require('./routes/casebase.routes');
+const weeklyreportRoutes = require('./routes/weeklyreport.router');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/cases', caseRoutes);
@@ -28,5 +29,6 @@ app.use('/api/clinics', clinicRoutes);
 app.use('/api/diseases', diseaseRoutes);
 app.use('/api/facilities', facilityRoutes);
 app.use('/api/casebases', casebaseRoutes);
+app.use('/api/weeklyreports', weeklyreportRoutes);
 
 module.exports = app;

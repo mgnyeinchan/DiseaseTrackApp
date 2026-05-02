@@ -368,3 +368,55 @@ CREATE TABLE tbl_suspectedcholera (
     FOREIGN KEY (casebase_id) REFERENCES tbl_casebase(casebase_id),
     FOREIGN KEY (disease_id) REFERENCES tbl_disease(disease_id)
 );
+
+CREATE TABLE tbl_weeklyreport (
+    id SERIAL PRIMARY KEY,
+    reporter_name VARCHAR(255),
+    reporter_position VARCHAR(255),
+    report_date DATE,
+    report_week INT,
+    report_year INT,
+    report_start_date DATE,
+    report_end_date DATE,
+    facility_id INT,
+
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+
+    CONSTRAINT fk_weekly_facility
+        FOREIGN KEY (facility_id)
+        REFERENCES tbl_facility(facility_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE tbl_disease_report (
+    id SERIAL PRIMARY KEY,
+    weeklyreport_id INT,
+    disease_id INT,
+
+    male_under5_cases INT DEFAULT 0,
+    female_under5_cases INT DEFAULT 0,
+    male_over5_cases INT DEFAULT 0,
+    female_over5_cases INT DEFAULT 0,
+
+    male_under5_deaths INT DEFAULT 0,
+    female_under5_deaths INT DEFAULT 0,
+    male_over5_deaths INT DEFAULT 0,
+    female_over5_deaths INT DEFAULT 0,
+
+    total_cases INT DEFAULT 0,
+    total_deaths INT DEFAULT 0,
+    grand_total INT DEFAULT 0,
+
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+
+    CONSTRAINT fk_disease_weekly
+        FOREIGN KEY (weeklyreport_id)
+        REFERENCES tbl_weeklyreport(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_disease
+        FOREIGN KEY (disease_id)
+        REFERENCES tbl_disease(disease_id)
+);

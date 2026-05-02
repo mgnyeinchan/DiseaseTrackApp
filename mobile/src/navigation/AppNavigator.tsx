@@ -21,6 +21,7 @@ import ClinicNavigator from './clinicNavigator';
 import DiseaseNavigator from './DiseaseNavigator';
 import FacilityNavigator from './FacilityNavigator';
 import CasebaseNavigator from './CasebaseNavigator';
+import WeeklyReportNavigator from './WeeklyReportNavigator';
 
 const Stack = createStackNavigator();
 
@@ -47,6 +48,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Disease" component={DiseaseNavigator} />
       <Stack.Screen name="Facility" component={FacilityNavigator} />
       <Stack.Screen name="Casebase" component={CasebaseNavigator} />
+      <Stack.Screen name="Weekly" component={WeeklyReportNavigator} />
     </Stack.Navigator>
   );
 }

@@ -251,6 +251,21 @@ Neisseria meningitidis ရောဂါပိုး တွေ့ရှိခြ�
 ကာလဝမ်းရောဂါဖြစ်ပွားသော နေရာများတွင် ဝမ်းပျက်ဝမ်းလျှောခြင်း ဖြစ်ပွားခြင်း'
 );
 
+INSERT INTO tbl_disease (
+    disease_name,
+    disease_name_eng,
+    disease_name_mm,
+    disease_definition
+) VALUES
+('လတ်တလော ဝမ်းပျက်ဝမ်းလျှောခြင်း (AWD Some Dehydration)','AWD Some Dehydration','လတ်တလော ဝမ်းပျက်ဝမ်းလျှောခြင်း',''),
+('လတ်တလော ဝမ်းပျက်ဝမ်းလျှောခြင်း (AWD Severe Dehydration)','AWD Severe Dehydration','လတ်တလော ဝမ်းပျက်ဝမ်းလျှောခြင်း',''),
+('တုပ်ကွေးလက္ခဏာပြသောရောဂါ (ILI)','ILI','တုပ်ကွေးလက္ခဏာပြသောရောဂါ',''),
+('လတ်တလောပြင်းထန်အသက်ရှူလမ်းကြောင်းပိုးဝင်ရောဂါ (SARI)','SARI','လတ်တလောပြင်းထန်အသက်ရှူလမ်းကြောင်းပိုးဝင်ရောဂါ',''),
+('လက်တလော အသားဝါခြင်း ရောဂါ (Acute Jaudice Syndrome)','Acute Jaudice Syndrome','လက်တလော အသားဝါခြင်း ရောဂါ',''),
+('ရောဂါလက္ခဏာအရ သံသယငှက်ဖျားရောဂါ (Clinically Suspected Malaria)','Clinically Suspected Malaria','ရောဂါလက္ခဏာအရ သံသယငှက်ဖျားရောဂါ',''),
+('အတည်ပြု ငှက်ဖျားရောဂါ (Confirmed Malaria)','Confirmed Malaria','အတည်ပြု ငှက်ဖျားရောဂါ',''),
+('ဒင်ဂီးအဖျား (Dengue Fever)','Dengue Fever','ဒင်ဂီးအဖျား','');
+
 INSERT INTO tbl_facility (
     facility_code,
     facility_name,

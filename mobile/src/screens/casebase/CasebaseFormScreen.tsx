@@ -20,7 +20,7 @@ import {
 import { createCasebase, updateCasebase } from '../../services/casebaseApi';
 import { getFacilitiesDropdown } from '../../services/facilityApi';
 import { getTownshipsDropdown } from '../../services/clinicApi';
-import { getDiseasesDropdown } from '../../services/diseaseApi';
+import { getCasebaseDropdown } from '../../services/diseaseApi';
 import { getVillagesDropdown } from '../../services/villageApi';
 import { getCasebaseById } from '../../services/casebaseApi';
 
@@ -201,7 +201,7 @@ export default function CasebaseFormScreen({ route, navigation }: any) {
     getFacilitiesDropdown().then(r => setFacilities(r.data || []));
     getTownshipsDropdown().then(r => setTownships(r.data || []));
     getVillagesDropdown().then(r => setVillages(r.data || []));
-    getDiseasesDropdown().then(r => setDiseases(r.data || []));
+    getCasebaseDropdown().then(r => setDiseases(r.data || []));
 
     // ✅ priority 1: API call (full data)
     if (id) {
@@ -477,9 +477,28 @@ export default function CasebaseFormScreen({ route, navigation }: any) {
 
           {selectedFacility && (
             <View style={{ marginTop: 10 }}>
-              <Text>မြို့နယ် - {selectedFacility.tsp_name}</Text>
-              <Text>တိုင်း/ပြည်နယ် - {selectedFacility.div_name}</Text>
-              <Text>အဖွဲ့အစည်း - {selectedFacility.org_name}</Text>
+              <TextInput
+                label="မြို့နယ်"
+                value={selectedFacility?.tsp_name || ''}
+                mode="outlined"
+                editable={false}
+                style={{ marginBottom: 10 }}
+              />
+
+              <TextInput
+                label="အဖွဲ့အစည်း"
+                value={selectedFacility?.org_name || ''}
+                mode="outlined"
+                editable={false}
+                style={{ marginBottom: 10 }}
+              />
+              <TextInput
+                label="အမျိုးအစား"
+                value={selectedFacility?.facility_type || ''}
+                mode="outlined"
+                editable={false}
+                style={{ marginBottom: 10 }}
+              />
             </View>
           )}
         </Card.Content>

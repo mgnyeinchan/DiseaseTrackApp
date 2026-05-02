@@ -24,6 +24,9 @@ exports.remove = async (id) => {
   return model.remove(id);
 };
 
-exports.dropdown = async () => {
-  return model.dropdown();
+exports.casebasedropdown = async () => {
+  return model.casebasedropdown();
+};
+exports.weeklydropdown = async () => {
+  return model.weeklydropdown();
 };

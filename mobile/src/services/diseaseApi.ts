@@ -19,5 +19,8 @@ export const updateDisease = (id: number, data: any) =>
 export const deleteDisease = (id: number) =>
   API.delete(`/api/diseases/${id}`);
 
-export const getDiseasesDropdown = () =>
-  API.get('/api/diseases/dropdown');
+export const getCasebaseDropdown = () =>
+  API.get('/api/diseases/casebasedropdown');
+
+export const getWeeklyDropdown = () =>
+  API.get('/api/diseases/weeklydropdown');
