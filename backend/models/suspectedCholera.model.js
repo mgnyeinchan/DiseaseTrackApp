@@ -1,12 +1,14 @@
 const pool = require('./db');
 
 exports.getByCasebaseId = async (casebase_id) => {
+  console.log('getByCasebaseId ', casebase_id);
   return await pool.query(
     `SELECT * FROM tbl_suspectedcholera WHERE casebase_id=$1`,
     [casebase_id]
   );
 };
 
+// CREATE
 exports.createCholera = async (data) => {
   const result = await pool.query(
     `INSERT INTO tbl_suspectedcholera (
@@ -19,11 +21,26 @@ exports.createCholera = async (data) => {
     ) VALUES (
       $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
     ) RETURNING *`,
-    Object.values(data)
+    [
+      data.casebase_id,
+      data.disease_id,
+      data.cholera_vaccine,
+      data.onset_date,
+      data.diarrhea,
+      data.vomiting,
+      data.nausea,
+      data.abdominal_pain,
+      data.fever,
+      data.headache,
+      data.myalgia,
+      data.other_symptoms,
+      data.patient_status
+    ]
   );
   return result.rows[0];
 };
 
+// UPDATE
 exports.updateCholera = async (casebase_id, disease_id, data) => {
   const result = await pool.query(
     `UPDATE tbl_suspectedcholera SET
@@ -54,6 +71,7 @@ exports.updateCholera = async (casebase_id, disease_id, data) => {
   return result.rows[0];
 };
 
+// DELETE
 exports.deleteCholera = async (casebase_id, disease_id) => {
   await pool.query(
     `DELETE FROM tbl_suspectedcholera WHERE casebase_id=$1 AND disease_id=$2`,

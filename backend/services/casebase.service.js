@@ -22,7 +22,6 @@ exports.getById = async (id) => {
   const disease_id = casebase.disease_id;
 
   let diseaseData = null;
-  const casebase_id = casebase.casebase_id;
   // load disease detail
   switch (disease_id) {
     case 1:
@@ -51,7 +50,6 @@ exports.getById = async (id) => {
       break;
   }
   
-  console.log("CASEBASE 👉", casebase.casebase_id);
   console.log("AFP QUERY 👉", diseaseData.rows);
   return {
     ...casebase,
@@ -68,9 +66,9 @@ const diseaseMap = {
     delete: Afp.deleteAFP
   },
   2: {
-    create: Fever.createFeverwithrash,
-    update: Fever.updateFeverwithrash,
-    delete: Fever.deleteFeverwithrash
+    create: Fever.createFeverWithRash,
+    update: Fever.updateFeverWithRash,
+    delete: Fever.deleteFeverWithRash
   },
   3: {
     create: Diphtheria.createDiphtheria,
@@ -78,19 +76,19 @@ const diseaseMap = {
     delete: Diphtheria.deleteDiphtheria
   },
   4: {
-    create: Nnt.createNnt,
-    update: Nnt.updateNnt,
-    delete: Nnt.deleteNnt
+    create: Nnt.createNNT,
+    update: Nnt.updateNNT,
+    delete: Nnt.deleteNNT
   },
   5: {
-    create: Aes.createAes,
-    update: Aes.updateAes,
-    delete: Aes.deleteAes
+    create: Aes.createAES,
+    update: Aes.updateAES,
+    delete: Aes.deleteAES
   },
   6: {
-    create: Whooping.createWhoopingcough,
-    update: Whooping.updateWhoopingcough,
-    delete: Whooping.deleteWhoopingcough
+    create: Whooping.createWhoopingCough,
+    update: Whooping.updateWhoopingCough,
+    delete: Whooping.deleteWhoopingCough
   },
   7: {
     create: Meningo.createMeningococcal,
@@ -98,9 +96,9 @@ const diseaseMap = {
     delete: Meningo.deleteMeningococcal
   },
   8: {
-    create: Cholera.createSuspectedcholera,
-    update: Cholera.updateSuspectedcholera,
-    delete: Cholera.deleteSuspectedcholera
+    create: Cholera.createCholera,
+    update: Cholera.updateCholera,
+    delete: Cholera.deleteCholera
   }
 };
 
@@ -132,6 +130,9 @@ exports.create = async (data) => {
     else if (disease_id === 7) detailData = data.meningo;
     else if (disease_id === 8) detailData = data.cholera;
 
+    console.log(detailData);
+    console.log(casebase.casebase_id);
+    console.log(disease_id);
     if (detailData) {
       await disease.create({
         ...detailData, // 🔥 THIS IS KEY

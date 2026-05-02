@@ -1,0 +1,10 @@
+export const DISEASE = {
+  AFP: 1,
+  FEVER_RASH: 2,
+  DIPHTHERIA: 3,
+  NNT: 4,
+  AES: 5,
+  WHOOPING_COUGH: 6,
+  MENINGOCOCCAL: 7,
+  CHOLERA: 8
+};
