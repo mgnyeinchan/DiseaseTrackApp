@@ -22,21 +22,19 @@ import DiseaseNavigator from './DiseaseNavigator';
 import FacilityNavigator from './FacilityNavigator';
 import CasebaseNavigator from './CasebaseNavigator';
 import WeeklyReportNavigator from './WeeklyReportNavigator';
+import SurveillanceNavigator from './SurveillanceNavigator';
 
 const Stack = createStackNavigator();
 
 export default function AppNavigator() {
   return (
     <Stack.Navigator
+      initialRouteName="Dashboard"
       screenOptions={{
         headerLeft: () => <HeaderLeft />,
         headerRight: () => <HeaderRight />,
       }}
     >
-      <Stack.Screen name="CaseList" component={CaseListScreen} />
-      <Stack.Screen name="AddCase" component={AddCaseScreen} />
-      <Stack.Screen name="EditCase" component={EditCaseScreen} />
-      
       <Stack.Screen name="Dashboard" component={DashboardScreen} />
 
       <Stack.Screen name="Projects" component={ProjectNavigator} />
@@ -49,6 +47,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Facility" component={FacilityNavigator} />
       <Stack.Screen name="Casebase" component={CasebaseNavigator} />
       <Stack.Screen name="Weekly" component={WeeklyReportNavigator} />
+      <Stack.Screen name="Surveillance" component={SurveillanceNavigator} />
     </Stack.Navigator>
   );
 }

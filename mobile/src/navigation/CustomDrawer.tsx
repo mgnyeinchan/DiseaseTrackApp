@@ -37,7 +37,14 @@ export default function CustomDrawer({ navigation }: any) {
         })} />
 
         <DrawerItem label="Event-based Surveillance Form" icon="alert-circle-outline"
-          onPress={() => navigation.navigate('Event')} />
+          onPress={() => navigation.navigate('Home', {
+          screen: 'Surveillance',
+          isCreate: true,
+          params: {
+            screen: 'SurveillanceForm',
+            params: {}
+          }
+        })}/>
 
         {/* 🔹 EXPORT */}
         <Text style={styles.section}>Export</Text>
@@ -69,7 +76,14 @@ export default function CustomDrawer({ navigation }: any) {
         <DrawerItem
           label="Event Export"
           icon="cloud-download-outline"
-          onPress={() => navigation.navigate('EventExport')}
+          onPress={() => navigation.navigate('Home', {
+          screen: 'Surveillance',
+          isCreate: true,
+          params: {
+            screen: 'SurveillanceList',
+            params: {}
+          }
+        })}
         />
 
         {/* 🔹 DASHBOARD */}

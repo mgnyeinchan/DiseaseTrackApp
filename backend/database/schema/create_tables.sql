@@ -420,3 +420,70 @@ CREATE TABLE tbl_disease_report (
         FOREIGN KEY (disease_id)
         REFERENCES tbl_disease(disease_id)
 );
+
+CREATE TABLE tbl_awarenesssource (
+    id SERIAL PRIMARY KEY,
+    source_name TEXT,
+    source_remark TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE tbl_agegroup (
+    agegroup_id SERIAL PRIMARY KEY,
+    agegroup_name TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE tbl_surveillance (
+    id SERIAL PRIMARY KEY,
+
+    facility_id INT,
+    reporter_name TEXT,
+    report_date DATE,
+    report_reason TEXT,
+    report_by_audio TEXT,
+
+    awarenesssource_id INT,
+
+    event_datetime TIMESTAMP,
+    event_tsp_id INT,
+    event_location_detail TEXT,
+
+    agegroup_id INT,
+
+    total_cases INT DEFAULT 0,
+    total_deaths INT DEFAULT 0,
+    hospitalized_count INT DEFAULT 0,
+    at_risk_count INT DEFAULT 0,
+
+    triage_result TEXT,
+    verification_result TEXT,
+    event_assessment TEXT,
+
+    reported_to_higher_date DATE,
+    response_actions TEXT,
+    recorded_by TEXT,
+
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+
+    -- FK Constraints
+    CONSTRAINT fk_surveillance_facility
+        FOREIGN KEY (facility_id)
+        REFERENCES tbl_facility(facility_id)
+        ON DELETE SET NULL,
+
+    CONSTRAINT fk_surveillance_source
+        FOREIGN KEY (awarenesssource_id)
+        REFERENCES tbl_awarenesssource(id),
+
+    CONSTRAINT fk_surveillance_agegroup
+        FOREIGN KEY (agegroup_id)
+        REFERENCES tbl_agegroup(agegroup_id),
+
+    CONSTRAINT fk_surveillance_tsp
+        FOREIGN KEY (event_tsp_id)
+        REFERENCES tbl_township(tsp_id)
+);

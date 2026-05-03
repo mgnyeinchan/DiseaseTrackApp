@@ -290,3 +290,16 @@ INSERT INTO tbl_facility (
 ('FACI-0014', 'Nan Man', 4, 1, 3, 'Clinic'),
 ('FACI-0015', 'Hlar Du', 5, 2, 4, 'Clinic'),
 ('FACI-0016', 'MBR 1 (Lwal Waing)', 1, 4, 2, 'Clinic');
+
+INSERT INTO tbl_awarenesssource (source_name) VALUES
+('ကျန်းမာရေးဝန်ထမ်း'),
+('ရပ်ရွာကျန်းမာရေးလုပ်သား/စေတနာ့ဝန်ထမ်း'),
+('လူထု'),
+('သတင်းမီဒီယာ'),
+('အခြား');
+
+INSERT INTO tbl_agegroup (agegroup_name) VALUES
+('အသက် (၅) နှစ်အောက်တွင်ဖြစ်သည်'),
+('အသက် (၅) နှစ်နှင့် အထက်တွင်ဖြစ်သည်'),
+('အသက်အရွယ်အားလုံး'),
+('မသိပါ');
